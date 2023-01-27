@@ -12,8 +12,11 @@
 class Axis {
     private:
     int vdsIndex;
+    int apiIndex;
     CoordinateSystem coordinateSystem;
     OpenVDS::VolumeDataAxisDescriptor vdsAxisDescriptor;
+
+    std::string apiName; // Can we get rid of this
 
     public:
     Axis(
@@ -26,6 +29,9 @@ class Axis {
     std::string getName() const; //TODO: Could we work with string_views in C++17?
     std::string getUnit() const; //TODO: Could we work with string_views in C++17?
     int getVDSIndex() const;
+    int getAPIIndex() const; //TODO: Can I get rid of this?
+
+    std::string getAPIName() const;
 
     CoordinateSystem getCoordinateSystem() const;
 };
@@ -49,7 +55,7 @@ class VDSMetadataHandler {
 
     Axis getAxis(const ApiAxisName an);
 
-    //TODO: Probably should be private
+    //TODO: Probably should be private and/or friend of VDSDataHandler
     OpenVDS::ScopedVDSHandle& getVDSHandle();
 
     static OpenVDS::InterpolationMethod getInterpolation(

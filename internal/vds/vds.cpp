@@ -113,7 +113,6 @@ struct requestdata slice(
         VDSDataHandler vdsData(vds, credentials);
         return vdsData.getSlice( ax, lineno );
     } catch (const std::exception& e) {
-        std::cerr << "Fetching error " << e.what() << std::endl;
         return handle_error(e);
     }
 }
@@ -144,17 +143,17 @@ struct requestdata slice_metadata(
         //}
 
         if (ax == ApiAxisName::I or ax == ApiAxisName::INLINE) {
-            meta["x"] = convert_axis_to_json(vdsMetadata.getCrossline());
-            meta["y"] = convert_axis_to_json(vdsMetadata.getSample());
+            meta["x"] = convert_axis_to_json(vdsMetadata.getSample());
+            meta["y"] = convert_axis_to_json(vdsMetadata.getCrossline());
         }
         else {
             if (ax == ApiAxisName::J or ax == ApiAxisName::CROSSLINE) {
-                meta["x"] = convert_axis_to_json(vdsMetadata.getInline());
-                meta["y"] = convert_axis_to_json(vdsMetadata.getSample());
+                meta["x"] = convert_axis_to_json(vdsMetadata.getSample());
+                meta["y"] = convert_axis_to_json(vdsMetadata.getInline());
             }
             else {
-                meta["x"] = convert_axis_to_json(vdsMetadata.getInline());
-                meta["y"] = convert_axis_to_json(vdsMetadata.getCrossline());
+                meta["x"] = convert_axis_to_json(vdsMetadata.getCrossline());
+                meta["y"] = convert_axis_to_json(vdsMetadata.getInline());
             }
         }
 

@@ -1,5 +1,9 @@
 #include "axis.h"
 
+#include <iostream>
+#include <list>
+#include <unordered_map>
+
 #include <OpenVDS/KnownMetadata.h>
 
 Axis::Axis(
@@ -11,35 +15,53 @@ Axis::Axis(
     switch (apiAxisName) {
         case I:
         case INLINE:
+            this->apiIndex = 0;
             axisNameToFind = OpenVDS::KnownAxisNames::Inline();
+            break;
         case J:
         case CROSSLINE:
+            this->apiIndex = 1;
             axisNameToFind = OpenVDS::KnownAxisNames::Crossline();
+            break;
         case K:
         case DEPTH:
         case TIME:
         case SAMPLE:
+            this->apiIndex = 2;
             axisNameToFind = OpenVDS::KnownAxisNames::Sample();
+            break;
         default: {
-            throw std::runtime_error("Unhandled axis");
+            throw std::runtime_error("1: Unhandled axis");
         }
     }
 
     switch (apiAxisName) {
         case I:
-        case J:
-        case K:
-            this->coordinateSystem = CoordinateSystem::INDEX;
+            this->apiName = OpenVDS::KnownAxisNames::I();
             break;
         case INLINE:
+            this->apiName = OpenVDS::KnownAxisNames::Inline();
+            break;
+        case J:
+            this->apiName = OpenVDS::KnownAxisNames::J();
+            break;
         case CROSSLINE:
+            this->apiName = OpenVDS::KnownAxisNames::Crossline();
+            break;
+        case K:
+            this->apiName = OpenVDS::KnownAxisNames::K();
+            break;
         case DEPTH:
+            this->apiName = OpenVDS::KnownAxisNames::Depth();
+            break;
         case TIME:
+            this->apiName = OpenVDS::KnownAxisNames::Time();
+            break;
         case SAMPLE:
-            this->coordinateSystem = CoordinateSystem::ANNOTATION;
+            this->apiName = OpenVDS::KnownAxisNames::Sample();
             break;
         default: {
-            throw std::runtime_error("Unhandled axis");
+            throw std::runtime_error("2: Unhandled axis");
         }
     }
 
@@ -57,6 +79,25 @@ Axis::Axis(
         }
     }
     vdsAxisDescriptor = layout->GetAxisDescriptor(vdsIndex);
+
+    switch (apiAxisName) {
+        case I:
+        case J:
+        case K:
+            this->coordinateSystem = CoordinateSystem::INDEX;
+            break;
+        case INLINE:
+        case CROSSLINE:
+        case DEPTH:
+        case TIME:
+        case SAMPLE:
+            this->coordinateSystem = CoordinateSystem::ANNOTATION;
+            break;
+        default: {
+            throw std::runtime_error("2: Unhandled axis");
+        }
+    }
+
 
     //Validate expections here now
     if (this->coordinateSystem == CoordinateSystem::ANNOTATION) {
@@ -97,6 +138,14 @@ std::string Axis::getUnit() const {
 
 int Axis::getVDSIndex() const {
     return this->vdsIndex;
+}
+
+int Axis::getAPIIndex() const {
+    return this->apiIndex;
+}
+
+std::string Axis::getAPIName() const {
+    return this->apiName;
 }
 
 CoordinateSystem Axis::getCoordinateSystem() const {
@@ -235,7 +284,80 @@ requestdata VDSDataHandler::getSlice(
     const int          lineNumber
 ) {
     const Axis axis = this->metadata.getAxis(axisName);
+    // Validate request
+    if (axisName == ApiAxisName::DEPTH or axisName == ApiAxisName::TIME or axisName == ApiAxisName::SAMPLE) //Cheating
+    {
+        //const Axis asdfaxis = this->metadata.getAxis(axisName);
+        const std::string axis_unit = axis.getUnit();
+        const std::string axis_name = axis.getAPIName();
 
+        const std::string msg = "Unable to use " + axis_name +
+                            " on cube with depth units: " + axis_unit;
+
+        std::cerr << "Sample axis idx " << axis.getVDSIndex() << std::endl;
+        std::cerr << "Axis name " << axisName << std::endl;
+        std::cerr << "API name " << axis.getAPIName() << std::endl;
+        std::cerr << "  " << msg << std::endl;
+
+        static const std::unordered_map<std::string, std::list<std::string>>
+            allowed_sample_axis_combinations
+            = {
+                {
+                    std::string( OpenVDS::KnownAxisNames::Depth() ),
+                    {
+                        std::string(OpenVDS::KnownUnitNames::Meter()),
+                        std::string(OpenVDS::KnownUnitNames::Foot()),
+                        std::string(OpenVDS::KnownUnitNames::USSurveyFoot())
+                    }
+                },
+                {
+                    std::string( OpenVDS::KnownAxisNames::Time() ),
+                    {
+                        std::string(OpenVDS::KnownUnitNames::Millisecond()),
+                        std::string(OpenVDS::KnownUnitNames::Second())
+                    }
+                },
+                {
+                    std::string( OpenVDS::KnownAxisNames::Sample() ),
+                    {
+                        std::string(OpenVDS::KnownUnitNames::Unitless())
+                    }
+                }
+            };
+
+        const auto axis_it = allowed_sample_axis_combinations.find(axis_name);
+
+        if (axis_it == allowed_sample_axis_combinations.end()) {
+            throw std::runtime_error(msg);
+        }
+
+        const std::list<std::string>& units = axis_it->second;
+        auto legal_units_contain = [&units] (const std::string name) {
+            return std::find(units.begin(), units.end(), name) != units.end();
+        };
+
+        if (not legal_units_contain(axis_unit)) {
+            throw std::runtime_error(msg);
+        }
+
+
+        //auto legal_names_contain = [] (const std::string name) { // Can use string view here
+        //    //for ( const auto& v: allowed_sample_axis_combinations.find(name) ) {
+        //    //    std::cerr << "  Legal unit: " << v << std::endl;
+        //    //}
+        //    return allowed_sample_axis_combinations.find(name) != allowed_sample_axis_combinations.end();
+        //};
+//
+        //if (not legal_names_contain(axis_name)) {
+        //    throw std::runtime_error(msg);
+        //}
+        //else {
+        //    std::cerr << "  Unit are legal." << std::endl;
+        //}
+    }
+
+
+    //const Axis axis = this->metadata.getAxis(axisName);
     // Set up subvolume
     SubVolume subvolume;
     auto accessManager = OpenVDS::GetAccessManager(metadata.getVDSHandle());
@@ -361,13 +483,13 @@ requestdata VDSDataHandler::getFence(
             //const AxisMetadata axis_meta( this->layout_, voxel_dim );
             //const auto max = axis_meta.number_of_samples() - 0.5;
             const auto max = axis.getNumberOfPoints() - 0.5;
-            const int vdsIndex = axis.getVDSIndex();
-            if(coordinate[vdsIndex] < min || coordinate[vdsIndex] >= max) {
+            const int apiIndex = axis.getAPIIndex();
+            if(coordinate[apiIndex] < min || coordinate[apiIndex] >= max) {
                 const std::string coordinate_str =
                     "(" +std::to_string(x) + "," + std::to_string(y) + ")";
                 throw std::runtime_error(
                     "Coordinate " + coordinate_str + " is out of boundaries "+
-                    "in dimension "+ std::to_string(vdsIndex)+ "."
+                    "in dimension "+ std::to_string(apiIndex)+ "."
                 );
             }
         };
