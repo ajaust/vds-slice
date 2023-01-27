@@ -187,7 +187,7 @@ func GetSlice(conn Connection, lineno, direction int) ([]byte, error) {
 		curl,
 		ccred,
 		C.int(lineno),
-		C.enum_Axis(direction),
+		C.enum_ApiAxisName(direction),
 	)
 
 	defer C.requestdata_delete(&result)
@@ -211,7 +211,7 @@ func GetSliceMetadata(conn Connection, direction int) ([]byte, error) {
 	result := C.slice_metadata(
 		curl,
 		ccred,
-		C.enum_Axis(direction),
+		C.enum_ApiAxisName(direction),
 	)
 
 	defer C.requestdata_delete(&result)

@@ -12,7 +12,7 @@ struct requestdata {
     unsigned long size;
 };
 
-enum Axis {
+enum ApiAxisName {
     I         = 0,
     J         = 1,
     K         = 2,
@@ -43,16 +43,16 @@ struct requestdata metadata(
 );
 
 struct requestdata slice(
-    char const * const vds,
-    char const * const credentials,
-    const int          lineno,
-    const enum Axis    direction
+    char const * const     vds,
+    char const * const     credentials,
+    const int              lineno,
+    const enum ApiAxisName direction
 );
 
 struct requestdata slice_metadata(
-    char const * const vds,
-    char const * const credentials,
-    const enum Axis    direction
+    char const * const     vds,
+    char const * const     credentials,
+    const enum ApiAxisName direction
 );
 
 struct requestdata fence(
