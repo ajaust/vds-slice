@@ -8,7 +8,7 @@
 
 Axis::Axis(
         const ApiAxisName apiAxisName,
-        const OpenVDS::VolumeDataLayout* layout
+        const OpenVDS::VolumeDataLayout* vdsLayout
     ) {
 
     char const * axisNameToFind;
@@ -66,7 +66,7 @@ Axis::Axis(
     }
 
     for (int vdsAxisIdx = 0; vdsAxisIdx < 3; ++vdsAxisIdx) {
-        const auto& vdsAxisDescriptor = layout->GetAxisDescriptor(vdsAxisIdx);
+        const auto& vdsAxisDescriptor = vdsLayout->GetAxisDescriptor(vdsAxisIdx);
 
         const bool names_are_equal = strcmp(
                                         axisNameToFind,
@@ -78,7 +78,7 @@ Axis::Axis(
             break;
         }
     }
-    vdsAxisDescriptor = layout->GetAxisDescriptor(vdsIndex);
+    vdsAxisDescriptor = vdsLayout->GetAxisDescriptor(vdsIndex);
 
     switch (apiAxisName) {
         case I:
@@ -101,7 +101,7 @@ Axis::Axis(
 
     //Validate expections here now
     if (this->coordinateSystem == CoordinateSystem::ANNOTATION) {
-        auto transformer = OpenVDS::IJKCoordinateTransformer(layout);
+        auto transformer = OpenVDS::IJKCoordinateTransformer(vdsLayout);
         if (not transformer.AnnotationsDefined()) {
             throw std::runtime_error("VDS doesn't define annotations");
         }
@@ -168,6 +168,7 @@ VDSMetadataHandler::VDSMetadataHandler(
     }
 
     auto accessManager = OpenVDS::GetAccessManager(this->vdsHandle);
+    //this->vdsLayout = accessManager.GetVolumeDataLayout();
     this->vdsLayout = accessManager.GetVolumeDataLayout();
 
     //Verify assumptions

@@ -1,6 +1,7 @@
 #ifndef AXIS_H
 #define AXIS_H
 
+#include <memory>
 #include <string>
 
 #include <OpenVDS/OpenVDS.h>
@@ -21,7 +22,7 @@ class Axis {
     public:
     Axis(
         const ApiAxisName apiAxisName,
-        OpenVDS::VolumeDataLayout const* layout
+        OpenVDS::VolumeDataLayout const * vdsLayout
     );
     int getNumberOfPoints() const;
     int getMin() const;
