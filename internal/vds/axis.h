@@ -21,17 +21,17 @@ class Axis {
     public:
     Axis(
         const ApiAxisName apiAxisName,
-        const OpenVDS::VolumeDataLayout* layout
+        OpenVDS::VolumeDataLayout const* layout
     );
     int getNumberOfPoints() const;
     int getMin() const;
     int getMax() const;
     std::string getName() const; //TODO: Could we work with string_views in C++17?
     std::string getUnit() const; //TODO: Could we work with string_views in C++17?
-    int getVDSIndex() const;
-    int getAPIIndex() const; //TODO: Can I get rid of this?
+    int getVdsIndex() const;
+    int getApiIndex() const; //TODO: Can I get rid of this?
 
-    std::string getAPIName() const;
+    std::string getApiName() const;
 
     CoordinateSystem getCoordinateSystem() const;
 };
@@ -56,6 +56,7 @@ class VDSMetadataHandler {
     Axis getAxis(const ApiAxisName an);
 
     //TODO: Probably should be private and/or friend of VDSDataHandler
+    //      Could/should this be a shared pointer?
     OpenVDS::ScopedVDSHandle& getVDSHandle();
 
     static OpenVDS::InterpolationMethod getInterpolation(

@@ -136,15 +136,15 @@ std::string Axis::getUnit() const {
     return unit;
 }
 
-int Axis::getVDSIndex() const {
+int Axis::getVdsIndex() const {
     return this->vdsIndex;
 }
 
-int Axis::getAPIIndex() const {
+int Axis::getApiIndex() const {
     return this->apiIndex;
 }
 
-std::string Axis::getAPIName() const {
+std::string Axis::getApiName() const {
     return this->apiName;
 }
 
@@ -289,14 +289,14 @@ requestdata VDSDataHandler::getSlice(
     {
         //const Axis asdfaxis = this->metadata.getAxis(axisName);
         const std::string axis_unit = axis.getUnit();
-        const std::string axis_name = axis.getAPIName();
+        const std::string axis_name = axis.getApiName();
 
         const std::string msg = "Unable to use " + axis_name +
                             " on cube with depth units: " + axis_unit;
 
-        std::cerr << "Sample axis idx " << axis.getVDSIndex() << std::endl;
+        std::cerr << "Sample axis idx " << axis.getVdsIndex() << std::endl;
         std::cerr << "Axis name " << axisName << std::endl;
-        std::cerr << "API name " << axis.getAPIName() << std::endl;
+        std::cerr << "API name " << axis.getApiName() << std::endl;
         std::cerr << "  " << msg << std::endl;
 
         static const std::unordered_map<std::string, std::list<std::string>>
@@ -401,7 +401,7 @@ requestdata VDSDataHandler::getSlice(
     }
     const int voxelline = (lineNumber - min) / stride;
 
-    const int vdsAxisIndex = axis.getVDSIndex();
+    const int vdsAxisIndex = axis.getVdsIndex();
     subvolume.bounds.lower[vdsAxisIndex] = voxelline;
     subvolume.bounds.upper[vdsAxisIndex] = voxelline + 1;
 
@@ -483,7 +483,7 @@ requestdata VDSDataHandler::getFence(
             //const AxisMetadata axis_meta( this->layout_, voxel_dim );
             //const auto max = axis_meta.number_of_samples() - 0.5;
             const auto max = axis.getNumberOfPoints() - 0.5;
-            const int apiIndex = axis.getAPIIndex();
+            const int apiIndex = axis.getApiIndex();
             if(coordinate[apiIndex] < min || coordinate[apiIndex] >= max) {
                 const std::string coordinate_str =
                     "(" +std::to_string(x) + "," + std::to_string(y) + ")";
@@ -513,8 +513,8 @@ requestdata VDSDataHandler::getFence(
             coordinate[0] = std::round(coordinate[0] + 1) - 1;
             coordinate[1] = std::round(coordinate[1] + 1) - 1;
         }
-        coords[i][inlineAxis.getVDSIndex()] = coordinate[0];
-        coords[i][crosslineAxis.getVDSIndex()] = coordinate[1];
+        coords[i][inlineAxis.getVdsIndex()] = coordinate[0];
+        coords[i][crosslineAxis.getVdsIndex()] = coordinate[1];
         //}
     }
 
