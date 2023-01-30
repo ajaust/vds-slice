@@ -16,6 +16,8 @@
 
 #include "boundingbox.h"
 #include "axis.h"
+#include "vdsmetadatahandler.h"
+#include "vdsdatahandler.h"
 
 using namespace std;
 
