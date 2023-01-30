@@ -32,7 +32,7 @@ Axis::Axis(
             axisNameToFind = OpenVDS::KnownAxisNames::Sample();
             break;
         default: {
-            throw std::runtime_error("1: Unhandled axis");
+            throw std::runtime_error("Unhandled axis");
         }
     }
 
@@ -87,7 +87,7 @@ Axis::Axis(
             this->apiName = OpenVDS::KnownAxisNames::Sample();
             break;
         default: {
-            throw std::runtime_error("2: Unhandled axis");
+            throw std::runtime_error("Unhandled axis");
         }
     }
 
