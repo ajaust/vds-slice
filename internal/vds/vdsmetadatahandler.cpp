@@ -7,12 +7,14 @@ VDSMetadataHandler::VDSMetadataHandler(
     const std::string credentials
 )  {
     OpenVDS::Error error;
-    this->vdsHandle = OpenVDS::Open( url, credentials, error );
+    this->vdsHandle = std::make_shared<OpenVDS::ScopedVDSHandle>(
+                          OpenVDS::Open(url, credentials, error)
+                      );
     if(error.code != 0) {
         throw std::runtime_error("Could not open VDS: " + error.string);
     }
 
-    auto accessManager = OpenVDS::GetAccessManager(this->vdsHandle);
+    auto accessManager = OpenVDS::GetAccessManager(*this->vdsHandle);
     this->vdsLayout = accessManager.GetVolumeDataLayout();
 
     //Verify assumptions
@@ -78,7 +80,7 @@ OpenVDS::VolumeDataFormat VDSMetadataHandler::getChannelFormat(
 }
 
 
-OpenVDS::ScopedVDSHandle& VDSMetadataHandler::getVDSHandle() {
+std::shared_ptr<OpenVDS::ScopedVDSHandle> VDSMetadataHandler::getVDSHandle() {
     return this->vdsHandle;
 }
 

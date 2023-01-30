@@ -75,7 +75,7 @@ requestdata VDSDataHandler::getSlice(
     //const Axis axis = this->metadata.getAxis(axisName);
     // Set up subvolume
     SubVolume subvolume;
-    auto vdsAccessManager = OpenVDS::GetAccessManager(metadata.getVDSHandle());
+    auto vdsAccessManager = OpenVDS::GetAccessManager(*metadata.getVDSHandle());
     //auto const * vdsLayout = accessManager.GetVolumeDataLayout();
 //
     //for (int i = 0; i < 3; ++i) {
@@ -188,8 +188,8 @@ requestdata VDSDataHandler::getFence(
     const size_t              numberOfPoints,
     const InterpolationMethod interpolationMethod
 ) {
-    OpenVDS::ScopedVDSHandle& vdsHandle = metadata.getVDSHandle();
-    auto vdsAccessManager = OpenVDS::GetAccessManager(vdsHandle);
+    auto vdsHandle = metadata.getVDSHandle();
+    auto vdsAccessManager = OpenVDS::GetAccessManager(*vdsHandle);
     auto const * vdsLayout = vdsAccessManager.GetVolumeDataLayout();
 
     //Get point list

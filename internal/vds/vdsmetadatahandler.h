@@ -1,6 +1,7 @@
 #ifndef VDSMETADATAHANDLER_H
 #define VDSMETADATAHANDLER_H
 
+#include <memory>
 #include <string>
 
 #include <OpenVDS/OpenVDS.h>
@@ -10,7 +11,7 @@
 
 class VDSMetadataHandler {
     private:
-    OpenVDS::ScopedVDSHandle vdsHandle;
+    std::shared_ptr<OpenVDS::ScopedVDSHandle> vdsHandle;
     OpenVDS::VolumeDataLayout const * vdsLayout;
 
     public:
@@ -30,12 +31,10 @@ class VDSMetadataHandler {
     //       class.
     OpenVDS::VolumeDataFormat getChannelFormat(const int channelIndex);
     //TODO: Currently needed such that DataHandler can access the VDS dataset
-    //      which is opened by VDSMetadataHandler.
-    //      Probably should be private and/or friend of VDSDataHandler.
-    //      Could/should this be a shared pointer?
-    //      I am unsure whether the responsibilities are clear from the names of
-    //      of the classes.
-    OpenVDS::ScopedVDSHandle& getVDSHandle();
+    //      which is opened by VDSMetadataHandler. Returning a shared pointer
+    //      makes sure that the VDSHandler is alive during access, i.e., the
+    //      file handle is still open.
+    std::shared_ptr<OpenVDS::ScopedVDSHandle> getVDSHandle();
 
     static OpenVDS::InterpolationMethod getInterpolation(
         InterpolationMethod interpolation);
