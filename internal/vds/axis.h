@@ -27,12 +27,13 @@ class Axis {
     int getNumberOfPoints() const;
     int getMin() const;
     int getMax() const;
-    std::string getName() const; //TODO: Could we work with string_views in C++17?
     std::string getUnit() const; //TODO: Could we work with string_views in C++17?
     int getVdsIndex() const;
     int getApiIndex() const; //TODO: Can I get rid of this?
 
-    std::string getApiName() const;
+    std::string getVdsName() const; //TODO: Could we work with string_views in C++17?
+    std::string getApiName() const; //TODO: Could we work with string_views in C++17?
+    //std::string getName() const;
 
     CoordinateSystem getCoordinateSystem() const;
 };
@@ -54,7 +55,7 @@ class VDSMetadataHandler {
     std::string getFormat() const;
     std::string getCRS() const;
 
-    Axis getAxis(const ApiAxisName an);
+    Axis getAxis(const ApiAxisName axisName) const;
 
     //TODO: Probably should be private and/or friend of VDSDataHandler
     //      Could/should this be a shared pointer?

@@ -44,7 +44,7 @@ nlohmann::json convert_axis_to_json(
 ) {
     nlohmann::json doc;
     doc = {
-        { "annotation", axis.getName()           },
+        { "annotation", axis.getApiName()           },
         { "min",        axis.getMin()            },
         { "max",        axis.getMax()            },
         { "samples",    axis.getNumberOfPoints() },

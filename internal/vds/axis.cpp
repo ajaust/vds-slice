@@ -126,11 +126,6 @@ int Axis::getNumberOfPoints() const {
     return this->vdsAxisDescriptor.GetNumSamples();
 }
 
-std::string Axis::getName() const {
-    std::string name = this->vdsAxisDescriptor.GetName();
-    return name;
-}
-
 std::string Axis::getUnit() const {
     std::string unit = this->vdsAxisDescriptor.GetUnit();
     return unit;
@@ -142,6 +137,12 @@ int Axis::getVdsIndex() const {
 
 int Axis::getApiIndex() const {
     return this->apiIndex;
+}
+
+std::string Axis::getVdsName() const {
+//std::string Axis::getName() const {
+    std::string name = this->vdsAxisDescriptor.GetName();
+    return name;
 }
 
 std::string Axis::getApiName() const {
@@ -221,7 +222,7 @@ std::string VDSMetadataHandler::getCRS() const {
     return this->vdsLayout->GetMetadataString(crs.GetCategory(), crs.GetName());
 }
 
-Axis VDSMetadataHandler::getAxis(const ApiAxisName an) {
+Axis VDSMetadataHandler::getAxis(const ApiAxisName axisName) const {
     // Do we need to check this here AND when creating the axis?
     //switch(an) {
     //    case ApiAxisName::I:
@@ -235,7 +236,7 @@ Axis VDSMetadataHandler::getAxis(const ApiAxisName an) {
     //    case ApiAxisName::TIME:
     //        return this->getSample();
     //}
-    return Axis( an, this->vdsLayout );
+    return Axis( axisName, this->vdsLayout );
 }
 
 
@@ -295,10 +296,10 @@ requestdata VDSDataHandler::getSlice(
         const std::string msg = "Unable to use " + axis_name +
                             " on cube with depth units: " + axis_unit;
 
-        std::cerr << "Sample axis idx " << axis.getVdsIndex() << std::endl;
-        std::cerr << "Axis name " << axisName << std::endl;
-        std::cerr << "API name " << axis.getApiName() << std::endl;
-        std::cerr << "  " << msg << std::endl;
+        //std::cerr << "Sample axis idx " << axis.getVdsIndex() << std::endl;
+        //std::cerr << "Axis name " << axisName << std::endl;
+        //std::cerr << "API name " << axis.getApiName() << std::endl;
+        //std::cerr << "  " << msg << std::endl;
 
         static const std::unordered_map<std::string, std::list<std::string>>
             allowed_sample_axis_combinations
