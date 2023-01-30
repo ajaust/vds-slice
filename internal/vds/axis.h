@@ -59,6 +59,8 @@ class VDSMetadataHandler {
 
     //TODO: Probably should be private and/or friend of VDSDataHandler
     //      Could/should this be a shared pointer?
+    //      I am unsure whether the responsibilities are clear from the names of
+    //      of the classes.
     OpenVDS::ScopedVDSHandle& getVDSHandle();
 
     static OpenVDS::InterpolationMethod getInterpolation(

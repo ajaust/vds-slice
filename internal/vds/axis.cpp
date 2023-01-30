@@ -11,6 +11,7 @@ Axis::Axis(
         const OpenVDS::VolumeDataLayout* vdsLayout
     ) {
 
+    // Find axis in VDS that corresponds to request's axis name
     char const * axisNameToFind;
     switch (apiAxisName) {
         case I:
@@ -35,6 +36,31 @@ Axis::Axis(
         }
     }
 
+    // TODO: This should get a test
+    this->vdsIndex = -1;
+    for (int vdsAxisIdx = 0; vdsAxisIdx < 3; ++vdsAxisIdx) {
+        const auto& vdsAxisDescriptor = vdsLayout->GetAxisDescriptor(vdsAxisIdx);
+
+        const bool names_are_equal = strcmp(
+                                        axisNameToFind,
+                                        vdsAxisDescriptor.GetName()
+                                      ) == 0;
+
+        if ( names_are_equal ) {
+            this->vdsIndex = vdsAxisIdx;
+            break;
+        }
+    }
+    if (this->vdsIndex == -1) {
+        std::string msg = "Could not find axis named "
+                          + std::string(axisNameToFind)
+                          + " in VDS.";
+        throw std::runtime_error(msg);
+    }
+    // Get VDS axis descriptor
+    vdsAxisDescriptor = vdsLayout->GetAxisDescriptor(vdsIndex);
+
+    // Find axis name defined by API
     switch (apiAxisName) {
         case I:
             this->apiName = OpenVDS::KnownAxisNames::I();
@@ -65,20 +91,6 @@ Axis::Axis(
         }
     }
 
-    for (int vdsAxisIdx = 0; vdsAxisIdx < 3; ++vdsAxisIdx) {
-        const auto& vdsAxisDescriptor = vdsLayout->GetAxisDescriptor(vdsAxisIdx);
-
-        const bool names_are_equal = strcmp(
-                                        axisNameToFind,
-                                        vdsAxisDescriptor.GetName()
-                                      ) == 0;
-
-        if ( names_are_equal ) {
-            vdsIndex = vdsAxisIdx;
-            break;
-        }
-    }
-    vdsAxisDescriptor = vdsLayout->GetAxisDescriptor(vdsIndex);
 
     switch (apiAxisName) {
         case I:
