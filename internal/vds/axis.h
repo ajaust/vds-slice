@@ -9,6 +9,13 @@
 #include "boundingbox.h"
 #include "vds.h"
 
+// TODO: Split this file into three separate files
+
+// TODO: Fix case style.
+//       Member variable names and functions are now camel case.
+//       Temporary variables are sometimes camel case and sometimes snake case.
+//       Temporary functions are (often) snake case.
+
 // TODO: We could try to derive Axis from OpenVDS::VolumeDataAxisDescriptor
 class Axis {
     private:
@@ -16,8 +23,7 @@ class Axis {
     int apiIndex;
     CoordinateSystem coordinateSystem;
     OpenVDS::VolumeDataAxisDescriptor vdsAxisDescriptor;
-
-    std::string apiName; // Can we get rid of this
+    std::string apiName; // Can we get rid of this?
 
     public:
     Axis(
@@ -45,7 +51,6 @@ class VDSMetadataHandler {
 
     public:
     VDSMetadataHandler( const std::string url, const std::string credentials );
-    //VDSMetadataHandler( OpenVDS::ScopedVDSHandle vdsHandle );
 
     Axis getInline() const;
     Axis getCrossline() const;
@@ -71,6 +76,7 @@ class VDSMetadataHandler {
 // might be interpreted as more general than MetaData. We could also rename it
 // VDSVolumeDataHandler to make the distinction more clear.
 class VDSDataHandler {
+    private:
     VDSMetadataHandler metadata;
 
     public:
@@ -78,7 +84,6 @@ class VDSDataHandler {
     VDSDataHandler(const std::string url, const std::string credentials);
 
     requestdata getSlice(const ApiAxisName& axisName, const int lineNumber);
-    //void getFence()
 
     requestdata getFence(
         const CoordinateSystem    coordinateSystem,
@@ -87,7 +92,5 @@ class VDSDataHandler {
         const InterpolationMethod interpolationMethod
     );
 };
-
-
 
 #endif /* AXIS_H */

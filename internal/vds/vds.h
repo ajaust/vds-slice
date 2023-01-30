@@ -46,13 +46,13 @@ struct requestdata slice(
     char const * const     vds,
     char const * const     credentials,
     const int              lineno,
-    const enum ApiAxisName direction
+    const enum ApiAxisName axisName
 );
 
 struct requestdata slice_metadata(
     char const * const     vds,
     char const * const     credentials,
-    const enum ApiAxisName direction
+    const enum ApiAxisName axisName
 );
 
 struct requestdata fence(

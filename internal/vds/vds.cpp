@@ -1,25 +1,20 @@
 #include "vds.h"
 
-#include <stdio.h>
-#include <stdlib.h>
+//#include <stdio.h>
+//#include <stdlib.h>
 
-#include <array>
+//#include <array>
 #include <algorithm>
 #include <string>
 #include <stdexcept>
-#include <iostream>
-#include <memory>
-#include <utility>
-#include <cmath>
+//#include <iostream>
+//#include <memory>
+//#include <utility>
+//#include <cmath>
 
 #include "nlohmann/json.hpp"
 
-#include <OpenVDS/OpenVDS.h>
-#include <OpenVDS/KnownMetadata.h>
-#include <OpenVDS/IJKCoordinateTransformer.h>
-
 #include "boundingbox.h"
-//#include "poststack.h"
 #include "axis.h"
 
 using namespace std;
@@ -79,23 +74,16 @@ struct requestdata metadata(
         meta["boundingBox"]["cdp"]  = bbox.world();
         meta["boundingBox"]["ilxl"] = bbox.annotation();
 
-        //{
-        //    auto axis_metadata = poststackdata.get_all_axes_metadata();
-        //    std::reverse( axis_metadata.begin(), axis_metadata.end() );
-        //    std::for_each( axis_metadata.begin(), axis_metadata.end(),
-        //        [&meta](const AxisMetadata& desc) {
-        //            meta["axis"].push_back( convert_axis_descriptor_to_json( desc ) );
-        //        }
-        //    );
-        //}
         const Axis inlineAxis = vdsMetadata.getInline();
-        meta["axis"].push_back( convert_axis_to_json( inlineAxis ) );
-        const Axis crosslineAxis = vdsMetadata.getCrossline();
-        meta["axis"].push_back( convert_axis_to_json( crosslineAxis ) );
-        const Axis sampleAxis = vdsMetadata.getSample();
-        meta["axis"].push_back( convert_axis_to_json( sampleAxis ) );
+        meta["axis"].push_back(convert_axis_to_json(inlineAxis));
 
-        return wrap_as_requestdata( meta.dump() );
+        const Axis crosslineAxis = vdsMetadata.getCrossline();
+        meta["axis"].push_back(convert_axis_to_json(crosslineAxis));
+
+        const Axis sampleAxis = vdsMetadata.getSample();
+        meta["axis"].push_back(convert_axis_to_json(sampleAxis));
+
+        return wrap_as_requestdata(meta.dump());
     } catch (const std::exception& e) {
         return handle_error(e);
     }
@@ -105,13 +93,11 @@ struct requestdata slice(
     char const * const vds,
     char const * const credentials,
     const int          lineno,
-    const ApiAxisName         ax
+    const ApiAxisName  axisName
 ) {
     try {
-        //PostStackHandle poststackdata( vds, credentials );
-        //return poststackdata.get_slice(ax, lineno);
         VDSDataHandler vdsData(vds, credentials);
-        return vdsData.getSlice( ax, lineno );
+        return vdsData.getSlice(axisName, lineno);
     } catch (const std::exception& e) {
         return handle_error(e);
     }
@@ -120,34 +106,20 @@ struct requestdata slice(
 struct requestdata slice_metadata(
     char const * const vds,
     char const * const credentials,
-    const ApiAxisName  ax
+    const ApiAxisName  axisName
 ) {
     try {
-        VDSMetadataHandler vdsMetadata( vds, credentials );
+        VDSMetadataHandler vdsMetadata(vds, credentials);
 
         nlohmann::json meta;
-        //meta["format"] = poststackdata.get_format(Channel::Sample);
         meta["format"] = vdsMetadata.getFormat();
 
-        //auto axis_metadata = poststackdata.get_all_axes_metadata();
-        //{
-        //    const std::string axis_name_to_delete = poststackdata.get_axis(ax).name();
-        //    auto axis_to_delete = std::find_if(
-        //                            axis_metadata.begin(),
-        //                            axis_metadata.end(),
-        //                            [&axis_name_to_delete](const AxisMetadata& am) {
-        //                                return am.name() == axis_name_to_delete;
-        //                            }
-        //                        );
-        //    axis_metadata.erase(axis_to_delete);
-        //}
-
-        if (ax == ApiAxisName::I or ax == ApiAxisName::INLINE) {
+        if (axisName == ApiAxisName::I or axisName == ApiAxisName::INLINE) {
             meta["x"] = convert_axis_to_json(vdsMetadata.getSample());
             meta["y"] = convert_axis_to_json(vdsMetadata.getCrossline());
         }
         else {
-            if (ax == ApiAxisName::J or ax == ApiAxisName::CROSSLINE) {
+            if (axisName == ApiAxisName::J or axisName == ApiAxisName::CROSSLINE) {
                 meta["x"] = convert_axis_to_json(vdsMetadata.getSample());
                 meta["y"] = convert_axis_to_json(vdsMetadata.getInline());
             }
@@ -157,17 +129,12 @@ struct requestdata slice_metadata(
             }
         }
 
-        //if (ax == ApiAxisName::I or ax == ApiAxisName::INLINE) {
-        //    meta["x"] = convert_axis_descriptor_to_json( vdsMetadata.getCrossline() );
-        //    meta["y"] = convert_axis_descriptor_to_json( vdsMetadata.getSample() );
-        //}
-
         auto bbox = vdsMetadata.getBoundingBox();
         meta["boundingBox"]["ij"]   = bbox.index();
         meta["boundingBox"]["cdp"]  = bbox.world();
         meta["boundingBox"]["ilxl"] = bbox.annotation();
 
-        return wrap_as_requestdata( meta.dump() );
+        return wrap_as_requestdata(meta.dump());
     } catch (const std::exception& e) {
         return handle_error(e);
     }
@@ -182,13 +149,7 @@ struct requestdata fence(
     const enum InterpolationMethod interpolation_method
 ) {
     try {
-        //PostStackHandle poststackdata( vds, credentials );
-        //return poststackdata.get_fence(
-        //    coordinate_system,
-        //    coordinates,
-        //    npoints,
-        //    interpolation_method );
-        VDSDataHandler vdsData( vds, credentials );
+        VDSDataHandler vdsData(vds, credentials);
         return vdsData.getFence(
             coordinate_system,
             coordinates,
@@ -206,23 +167,16 @@ struct requestdata fence_metadata(
     const size_t       npoints
 ) {
     try {
-        //PostStackHandle poststackdata( vds, credentials );
-        VDSMetadataHandler vdsMetadata( vds, credentials );
+        VDSMetadataHandler vdsMetadata(vds, credentials);
 
         nlohmann::json meta;
-        //{
-        //    const auto axis_metadata = poststackdata.get_all_axes_metadata();
-        //    meta["shape"] = nlohmann::json::array(
-        //                        {npoints, axis_metadata.front().number_of_samples() }
-        //                    );
-        //}
         const Axis sampleAxis = vdsMetadata.getSample();
         meta["shape"] = nlohmann::json::array(
                             {npoints, sampleAxis.getNumberOfPoints() }
                         );
         meta["format"] = vdsMetadata.getFormat();
 
-        return wrap_as_requestdata( meta.dump() );
+        return wrap_as_requestdata(meta.dump());
     } catch (const std::exception& e) {
         return handle_error(e);
     }

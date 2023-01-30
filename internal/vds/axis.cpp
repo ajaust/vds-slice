@@ -8,7 +8,7 @@
 
 Axis::Axis(
         const ApiAxisName apiAxisName,
-        const OpenVDS::VolumeDataLayout* vdsLayout
+        OpenVDS::VolumeDataLayout const * vdsLayout
     ) {
 
     // Find axis in VDS that corresponds to request's axis name
@@ -106,7 +106,7 @@ Axis::Axis(
             this->coordinateSystem = CoordinateSystem::ANNOTATION;
             break;
         default: {
-            throw std::runtime_error("2: Unhandled axis");
+            throw std::runtime_error("Unhandled coordinate system");
         }
     }
 
@@ -119,10 +119,11 @@ Axis::Axis(
         }
     }
 
-    if (this->coordinateSystem != CoordinateSystem::ANNOTATION and
-        this->coordinateSystem != CoordinateSystem::INDEX ) {
-        throw std::runtime_error("Unhandled coordinate system");
-    }
+    // This is also verifirde above
+    //if (this->coordinateSystem != CoordinateSystem::ANNOTATION and
+    //    this->coordinateSystem != CoordinateSystem::INDEX ) {
+    //    throw std::runtime_error("Unhandled coordinate system");
+    //}
 
 }
 
@@ -181,11 +182,10 @@ VDSMetadataHandler::VDSMetadataHandler(
     }
 
     auto accessManager = OpenVDS::GetAccessManager(this->vdsHandle);
-    //this->vdsLayout = accessManager.GetVolumeDataLayout();
     this->vdsLayout = accessManager.GetVolumeDataLayout();
 
     //Verify assumptions
-    const int expectedDimensionality = 3;
+    constexpr int expectedDimensionality = 3;
     if (vdsLayout->GetDimensionality() != expectedDimensionality) {
         throw std::runtime_error(
             "Unsupported VDS, expected 3 dimensions, got " +
@@ -210,13 +210,18 @@ VDSMetadataHandler::VDSMetadataHandler(
 //    }
 //}
 
-// Could also have a member of Axis
+// TODO: Could also have a member of Axis for inline direction and return copy
+//       or reference
 Axis VDSMetadataHandler::getInline() const {
     return Axis(ApiAxisName::INLINE, this->vdsLayout);
 }
+// TODO: Could also have a member of Axis for crossline direction and return
+//       copy or reference
 Axis VDSMetadataHandler::getCrossline() const {
     return Axis(ApiAxisName::CROSSLINE, this->vdsLayout);
 }
+// TODO: Could also have a member of Axis for sample direction and return copy
+//       or reference
 Axis VDSMetadataHandler::getSample() const {
     return Axis(ApiAxisName::SAMPLE, this->vdsLayout);
 }
@@ -235,7 +240,7 @@ std::string VDSMetadataHandler::getCRS() const {
 }
 
 Axis VDSMetadataHandler::getAxis(const ApiAxisName axisName) const {
-    // Do we need to check this here AND when creating the axis?
+    // TODO: Do we need to check this here AND when creating the axis?
     //switch(an) {
     //    case ApiAxisName::I:
     //    case ApiAxisName::INLINE:
@@ -395,6 +400,7 @@ requestdata VDSDataHandler::getSlice(
     int max    = axis.getMax();
     int stride = (max - min) / (numberOfPoints - 1);
 
+    // TODO: Should we rather check whether the coordinate system IS Index?!
     if (axis.getCoordinateSystem() != CoordinateSystem::ANNOTATION) {
         min    = 0;
         max    = numberOfPoints - 1;
@@ -441,7 +447,6 @@ requestdata VDSDataHandler::getSlice(
                         subvolume.bounds.upper,
                         format
                     );
-
 
     const bool success = request.get()->WaitForCompletion();
     if (not success) {
