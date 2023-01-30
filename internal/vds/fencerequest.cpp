@@ -1,12 +1,14 @@
-#include "vdsfencerequest.h"
+#include "fencerequest.h"
 
-std::unique_ptr<VDSFencePointList>
-VDSFenceRequest::requestAsPointList(const FenceRequestParameters& parameters) {
+namespace vds {
+
+std::unique_ptr<FencePointList>
+FenceRequest::requestAsPointList(const FenceRequestParameters& parameters) {
     auto vdsHandle = this->metadata.getVDSHandle();
     auto const* vdsLayout = OpenVDS::GetLayout(*vdsHandle);
 
     //Get point list
-    std::unique_ptr<VDSFencePointList> coords(
+    std::unique_ptr<FencePointList> coords(
         new float[parameters.numberOfPoints][OpenVDS::Dimensionality_Max]{{0}}
     );
 
@@ -66,10 +68,11 @@ VDSFenceRequest::requestAsPointList(const FenceRequestParameters& parameters) {
     return coords;
 }
 
-response VDSFenceRequest::getData(
-    std::unique_ptr<VDSFencePointList>& points,
+response FenceRequest::getData(
     const FenceRequestParameters& parameters
 ) {
+    auto points = this->requestAsPointList(parameters);
+
     auto vdsHandle = this->metadata.getVDSHandle();
     auto vdsAccessManager = OpenVDS::GetAccessManager(*vdsHandle);
 
@@ -85,9 +88,9 @@ response VDSFenceRequest::getData(
         channelIndex
     );
 
-    VDSRequestBuffer requestedData(requestSize);
+    RequestBuffer requestedData(requestSize);
     const OpenVDS::InterpolationMethod interpolationMethod
-        = VDSMetadataHandler::getInterpolation(parameters.interpolationMethod);
+        = MetadataHandler::getInterpolation(parameters.interpolationMethod);
     auto request = vdsAccessManager.RequestVolumeTraces(
                         (float*)requestedData.getPointer(),
                         requestedData.getSizeInBytes(),
@@ -106,3 +109,5 @@ response VDSFenceRequest::getData(
     }
     return requestedData.getAsResponse();
 }
+
+} /* namespace vds */

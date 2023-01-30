@@ -1,11 +1,13 @@
-#include "vdsslicerequest.h"
+#include "slicerequest.h"
 
 #include <list>
 #include <unordered_map>
 
 #include <OpenVDS/KnownMetadata.h>
 
-void VDSSliceRequest::validateAxis(const ApiAxisName& apiAxisName) {
+namespace vds {
+
+void SliceRequest::validateAxis(const ApiAxisName& apiAxisName) {
     const Axis axis = this->metadata.getAxis(apiAxisName);
     // Validate request axis name and unit name
     if (   apiAxisName == ApiAxisName::DEPTH
@@ -63,7 +65,7 @@ void VDSSliceRequest::validateAxis(const ApiAxisName& apiAxisName) {
     }
 }
 
-SubVolume VDSSliceRequest::requestAsSubvolume(
+SubVolume SliceRequest::requestAsSubvolume(
     const SliceRequestParameters& parameters
 ) {
     const Axis axis = this->metadata.getAxis(parameters.apiAxisName);
@@ -112,29 +114,33 @@ SubVolume VDSSliceRequest::requestAsSubvolume(
     return subvolume;
 }
 
-response VDSSliceRequest::getData(const SubVolume& subvolume) {
+response SliceRequest::getData(const SliceRequestParameters& parameters) {
+    validateAxis(parameters.apiAxisName);
+
+    const SubVolume sliceAsSubvolume = requestAsSubvolume(parameters);
+
     const int channelIndex = 0;
     const int levelOfDetailLevel = 0;
     const auto channelFormat = metadata.getChannelFormat(channelIndex);
 
     auto vdsAccessManager = OpenVDS::GetAccessManager(*metadata.getVDSHandle());
     const auto requestSize = vdsAccessManager.GetVolumeSubsetBufferSize(
-                                subvolume.bounds.lower,
-                                subvolume.bounds.upper,
+                                sliceAsSubvolume.bounds.lower,
+                                sliceAsSubvolume.bounds.upper,
                                 channelFormat,
                                 levelOfDetailLevel,
                                 channelIndex
                             );
 
-    VDSRequestBuffer requestedData(requestSize);
+    RequestBuffer requestedData(requestSize);
     auto request = vdsAccessManager.RequestVolumeSubset(
                     requestedData.getPointer(),
                     requestedData.getSizeInBytes(),
                     OpenVDS::Dimensions_012,
                     levelOfDetailLevel,
                     channelIndex,
-                    subvolume.bounds.lower,
-                    subvolume.bounds.upper,
+                    sliceAsSubvolume.bounds.lower,
+                    sliceAsSubvolume.bounds.upper,
                     channelFormat
                 );
 
@@ -144,3 +150,5 @@ response VDSSliceRequest::getData(const SubVolume& subvolume) {
     }
     return requestedData.getAsResponse();
 }
+
+} /* namespace vds */
