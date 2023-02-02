@@ -9,13 +9,15 @@
 #include "axis.h"
 #include "boundingbox.h"
 
-class VDSMetadataHandler {
+namespace vds {
+
+class MetadataHandler {
     private:
     std::shared_ptr<OpenVDS::ScopedVDSHandle> vdsHandle;
     OpenVDS::VolumeDataLayout const * vdsLayout;
 
     public:
-    VDSMetadataHandler(const std::string url, const std::string credentials);
+    MetadataHandler(const std::string url, const std::string credentials);
 
     Axis getInline()    const;
     Axis getCrossline() const;
@@ -28,7 +30,7 @@ class VDSMetadataHandler {
 
     OpenVDS::VolumeDataFormat getChannelFormat(const int channelIndex);
     //TODO: Currently needed such that DataHandler can access the VDS dataset
-    //      which is opened by VDSMetadataHandler. Returning a shared pointer
+    //      which is opened by MetadataHandler. Returning a shared pointer
     //      makes sure that the VDSHandler is alive during access, i.e., the
     //      file handle has not been destroyed.
     std::shared_ptr<OpenVDS::ScopedVDSHandle> getVDSHandle();
@@ -37,5 +39,6 @@ class VDSMetadataHandler {
         InterpolationMethod interpolation);
 };
 
+} /* namespace vds */
 
 #endif /* VDSMETADATAHANDLER_H */

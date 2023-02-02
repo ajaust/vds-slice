@@ -8,8 +8,8 @@
 
 #include "boundingbox.h"
 #include "axis.h"
-#include "vdsmetadatahandler.h"
-#include "vdsdatahandler.h"
+#include "metadatahandler.h"
+#include "datahandler.h"
 
 using namespace std;
 
@@ -56,7 +56,7 @@ struct response metadata(
     char const * const credentials
 ) {
     try {
-        VDSMetadataHandler vdsMetadata( vds, credentials );
+        vds::MetadataHandler vdsMetadata( vds, credentials );
 
         nlohmann::json meta;
         meta["format"] = vdsMetadata.getFormat();
@@ -90,7 +90,7 @@ struct response slice(
     const ApiAxisName  axisName
 ) {
     try {
-        VDSDataHandler vdsData(vds, credentials);
+        vds::DataHandler vdsData(vds, credentials);
         return vdsData.getSlice(axisName, lineno);
     } catch (const std::exception& e) {
         return handle_error(e);
@@ -103,7 +103,7 @@ struct response slice_metadata(
     const ApiAxisName  axisName
 ) {
     try {
-        VDSMetadataHandler vdsMetadata(vds, credentials);
+        vds::MetadataHandler vdsMetadata(vds, credentials);
 
         nlohmann::json meta;
         meta["format"] = vdsMetadata.getFormat();
@@ -143,7 +143,7 @@ struct response fence(
     const enum InterpolationMethod interpolation_method
 ) {
     try {
-        VDSDataHandler vdsData(vds, credentials);
+        vds::DataHandler vdsData(vds, credentials);
         return vdsData.getFence(
             coordinate_system,
             coordinates,
@@ -161,7 +161,7 @@ struct response fence_metadata(
     const size_t       npoints
 ) {
     try {
-        VDSMetadataHandler vdsMetadata(vds, credentials);
+        vds::MetadataHandler vdsMetadata(vds, credentials);
 
         nlohmann::json meta;
         const Axis sampleAxis = vdsMetadata.getSample();

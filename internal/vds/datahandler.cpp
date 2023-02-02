@@ -1,17 +1,19 @@
-#include "vdsdatahandler.h"
+#include "datahandler.h"
 
 #include <list>
 #include <unordered_map>
 
 #include <OpenVDS/KnownMetadata.h>
 
-VDSDataHandler::VDSDataHandler(
+namespace vds {
+
+DataHandler::DataHandler(
     const std::string url,
     const std::string credentials
 ) : metadata(url, credentials) {
 }
 
-response VDSDataHandler::getSlice(
+response DataHandler::getSlice(
     const ApiAxisName& apiAxisName,
     const int          lineNumber
 ) {
@@ -183,7 +185,7 @@ response VDSDataHandler::getSlice(
 }
 
 
-response VDSDataHandler::getFence(
+response DataHandler::getFence(
     const CoordinateSystem    coordinateSystem,
     float const *             coordinates,
     const size_t              numberOfPoints,
@@ -273,7 +275,7 @@ response VDSDataHandler::getFence(
                         channelIndex,
                         coords.get(),
                         numberOfPoints,
-                        VDSMetadataHandler::getInterpolation(interpolationMethod),
+                        MetadataHandler::getInterpolation(interpolationMethod),
                         0 // Replacement value
                     );
 
@@ -291,3 +293,5 @@ response VDSDataHandler::getFence(
 
     return responseData;
 }
+
+} /* namespace vds */

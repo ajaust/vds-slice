@@ -1,18 +1,19 @@
-#ifndef VDSDATAHANDLER_H
-#define VDSDATAHANDLER_H
+#ifndef DATAHANDLER_H
+#define DATAHANDLER_H
 
 #include <string>
 
-#include "vdsmetadatahandler.h"
+#include "metadatahandler.h"
 #include "vds.h"
 
+namespace vds {
 
 // TODO: Should this be derived from the MetadataHandler? To some extend "Data"
 // might be interpreted as more general than MetaData. We could also rename it
-// VDSVolumeDataHandler to make the distinction more clear.
-class VDSDataHandler {
+// VolumeDataHandler to make the distinction more clear.
+class DataHandler {
     private:
-    VDSMetadataHandler metadata;
+    MetadataHandler metadata;
 
     struct SubVolume {
         struct {
@@ -23,7 +24,7 @@ class VDSDataHandler {
 
     public:
 
-    VDSDataHandler(const std::string url, const std::string credentials);
+    DataHandler(const std::string url, const std::string credentials);
 
     response getSlice(const ApiAxisName& axisName, const int lineNumber);
 
@@ -35,4 +36,6 @@ class VDSDataHandler {
     );
 };
 
-#endif /* VDSDATAHANDLER_H */
+} /* namespace vds */
+
+#endif /* DATAHANDLER_H */
