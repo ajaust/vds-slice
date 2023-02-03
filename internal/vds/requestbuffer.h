@@ -10,7 +10,7 @@ namespace vds {
 class RequestBuffer {
     private:
         const int requestSizeInBytes;
-        std::unique_ptr<char> pointer;
+        std::unique_ptr<char[]> pointer;
     public:
         RequestBuffer(const int requestSizeInBytes)
         : requestSizeInBytes(requestSizeInBytes),
@@ -21,11 +21,13 @@ class RequestBuffer {
 
         response getAsResponse() {
             response responseData{
-                this->pointer.get(),
+                this->pointer.release(),
                 nullptr,
                 static_cast<unsigned long>(this->requestSizeInBytes)
             };
-            this->pointer.release();
+            if (responseData.data == nullptr) {
+                throw std::runtime_error("Request buffer is invalid.");
+            }
             return responseData;
         }
 
