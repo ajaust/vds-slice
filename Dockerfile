@@ -1,5 +1,5 @@
 ARG OPENVDS_IMAGE=openvds
-ARG VDSSLICE_BASEIMAGE=golang:1.20-alpine3.17
+ARG VDSSLICE_BASEIMAGE=golang:1.22-alpine3.18
 FROM ${VDSSLICE_BASEIMAGE} as openvds
 RUN apk --no-cache add \
     git \
