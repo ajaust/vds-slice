@@ -12,9 +12,8 @@ RUN apk --no-cache add \
     perl
 
 WORKDIR /
-RUN git clone https://community.opengroup.org/osdu/platform/domain-data-mgmt-services/seismic/open-vds.git
+RUN git clone --depth 1 --branch 3.3.3 https://community.opengroup.org/osdu/platform/domain-data-mgmt-services/seismic/open-vds.git
 WORKDIR /open-vds
-RUN git checkout 3.3.3
 
 RUN cmake -S . \
     -B build \
