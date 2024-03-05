@@ -11,8 +11,9 @@ RUN apk --no-cache add \
     util-linux-dev \
     perl
 
+ARG OPENVDS_VERSION=3.4.0
 WORKDIR /
-RUN git clone --depth 1 --branch 3.4.0 https://community.opengroup.org/osdu/platform/domain-data-mgmt-services/seismic/open-vds.git
+RUN git clone --depth 1 --branch ${OPENVDS_VERSION} https://community.opengroup.org/osdu/platform/domain-data-mgmt-services/seismic/open-vds.git
 WORKDIR /open-vds
 
 RUN cmake -S . \
