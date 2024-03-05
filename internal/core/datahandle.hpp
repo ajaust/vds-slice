@@ -2,7 +2,6 @@
 #define VDS_SLICE_DATAHANDLE_HPP
 
 #include <memory>
-#include <string>
 
 #include <OpenVDS/OpenVDS.h>
 
@@ -56,6 +55,8 @@ private:
 
     static int constexpr lod_level = 0;
     static int constexpr channel = 0;
+
+    static void expose_request_error(std::shared_ptr<OpenVDS::VolumeDataRequest> const request);
 };
 
 DataHandle* make_datahandle(

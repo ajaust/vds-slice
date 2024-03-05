@@ -1,6 +1,7 @@
 #include "datahandle.hpp"
 
 #include <stdexcept>
+#include <string>
 
 #include <OpenVDS/KnownMetadata.h>
 #include <OpenVDS/OpenVDS.h>
@@ -89,7 +90,7 @@ void DataHandle::read_subcube(
     bool const success = request.get()->WaitForCompletion();
 
     if (!success) {
-        throw std::runtime_error("Failed to read from VDS.");
+        this->expose_request_error(request);
     }
 }
 
@@ -121,7 +122,7 @@ void DataHandle::read_traces(
     bool const success = request.get()->WaitForCompletion();
 
     if (!success) {
-        throw std::runtime_error("Failed to read from VDS.");
+        this->expose_request_error(request);
     }
 }
 
@@ -154,6 +155,21 @@ void DataHandle::read_samples(
 
     bool const success = request.get()->WaitForCompletion();
     if (!success) {
-        throw std::runtime_error("Failed to read from VDS.");
+        this->expose_request_error(request);
+    }
+}
+
+
+void DataHandle::expose_request_error(std::shared_ptr<OpenVDS::VolumeDataRequest> const request) {
+    if (request->IsCanceled()) {
+        int32_t error_code = request->GetErrorCode();
+        std::string error_message = request->GetErrorMessage();
+        std::string exception_message{
+            "Failed to read from VDS.\nOpenVDS error:\n" + error_message + "\n" +
+            "OpenVDS error code: " + std::to_string(error_code)
+        };
+        throw std::runtime_error(exception_message);
+    } else {
+        throw std::runtime_error("Failed to read from VDS due to timeout.");
     }
 }
